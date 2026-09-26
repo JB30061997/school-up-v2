@@ -1,0 +1,324 @@
+<script setup lang="ts">
+import { Head, Link, useForm } from "@inertiajs/vue3";
+import {
+    ArrowLeft,
+    CheckCircle2,
+    ChevronRight,
+    Hash,
+    MessageSquareText,
+    Pencil,
+    Save,
+    Tag,
+} from "lucide-vue-next";
+
+import AppLayout from "@/layouts/AppLayout.vue";
+
+interface Environment {
+    id: number;
+    name: string;
+    code?: string | null;
+}
+
+interface TicketCategory {
+    id: number;
+    environment_id: number;
+    name: string;
+    code: string | null;
+    active: boolean;
+}
+
+const props = defineProps<{
+    ticketCategory: TicketCategory;
+    environments?: Environment[];
+}>();
+
+const form = useForm({
+    environment_id: props.ticketCategory.environment_id,
+    name: props.ticketCategory.name ?? "",
+    code: props.ticketCategory.code ?? "",
+    active: Boolean(props.ticketCategory.active),
+});
+
+const submit = () => {
+    form.put(`/ticket-categories/${props.ticketCategory.id}`, {
+        preserveScroll: true,
+    });
+};
+</script>
+
+<template>
+    <Head :title="`Modifier - ${ticketCategory.name}`" />
+
+    <AppLayout>
+        <div class="min-h-screen bg-[#f7f9fc]">
+            <div class="mx-auto max-w-5xl px-5 py-7 lg:px-8">
+                <!-- Breadcrumb -->
+                <div
+                    class="mb-6 flex items-center gap-2 text-sm text-slate-400"
+                >
+                    <Link
+                        href="/ticket-categories"
+                        class="transition hover:text-emerald-600"
+                    >
+                        Objets des réclamations
+                    </Link>
+
+                    <ChevronRight :size="15" />
+
+                    <span class="font-semibold text-slate-700">
+                        {{ ticketCategory.name }}
+                    </span>
+                </div>
+
+                <!-- Header -->
+                <div
+                    class="relative mb-7 overflow-hidden rounded-[28px] border border-emerald-100 bg-white p-7 shadow-sm"
+                >
+                    <div
+                        class="absolute right-0 top-0 h-44 w-44 rounded-full bg-emerald-50 blur-3xl"
+                    />
+
+                    <div class="relative flex items-center gap-5">
+                        <div
+                            class="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-lg shadow-emerald-100"
+                        >
+                            <Pencil :size="27" />
+                        </div>
+
+                        <div>
+                            <div class="mb-2 flex flex-wrap items-center gap-3">
+                                <h1
+                                    class="text-2xl font-bold tracking-tight text-slate-900 lg:text-3xl"
+                                >
+                                    Modifier l'objet
+                                </h1>
+
+                                <span
+                                    class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-700"
+                                >
+                                    #{{ ticketCategory.id }}
+                                </span>
+                            </div>
+
+                            <p class="text-sm leading-6 text-slate-500">
+                                Modifiez les informations de
+                                <strong class="text-slate-700">
+                                    {{ ticketCategory.name }} </strong
+                                >.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <form
+                    @submit.prevent="submit"
+                    class="overflow-hidden rounded-[26px] border border-slate-200 bg-white shadow-sm"
+                >
+                    <div
+                        class="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-7 py-5"
+                    >
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600"
+                            >
+                                <MessageSquareText :size="20" />
+                            </div>
+
+                            <div>
+                                <h2 class="font-bold text-slate-900">
+                                    Informations de l'objet
+                                </h2>
+
+                                <p class="text-xs text-slate-400">
+                                    Mettez à jour les informations nécessaires.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-7 p-7">
+                        <!-- Environment -->
+                        <div>
+                            <label
+                                class="mb-2 block text-sm font-bold text-slate-700"
+                            >
+                                Environnement
+                            </label>
+
+                            <select
+                                v-model="form.environment_id"
+                                class="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-50"
+                            >
+                                <option
+                                    v-for="environment in environments"
+                                    :key="environment.id"
+                                    :value="environment.id"
+                                >
+                                    {{ environment.name }}
+                                </option>
+                            </select>
+
+                            <p
+                                v-if="form.errors.environment_id"
+                                class="mt-2 text-xs font-semibold text-red-500"
+                            >
+                                {{ form.errors.environment_id }}
+                            </p>
+                        </div>
+
+                        <div class="grid gap-6 md:grid-cols-2">
+                            <!-- Name -->
+                            <div>
+                                <label
+                                    class="mb-2 block text-sm font-bold text-slate-700"
+                                >
+                                    Titre de l'objet
+                                </label>
+
+                                <div class="relative">
+                                    <Tag
+                                        :size="18"
+                                        class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                                    />
+
+                                    <input
+                                        v-model="form.name"
+                                        type="text"
+                                        class="h-12 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm text-slate-800 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-50"
+                                    />
+                                </div>
+
+                                <p
+                                    v-if="form.errors.name"
+                                    class="mt-2 text-xs font-semibold text-red-500"
+                                >
+                                    {{ form.errors.name }}
+                                </p>
+                            </div>
+
+                            <!-- Code -->
+                            <div>
+                                <label
+                                    class="mb-2 block text-sm font-bold text-slate-700"
+                                >
+                                    Code
+                                </label>
+
+                                <div class="relative">
+                                    <Hash
+                                        :size="18"
+                                        class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                                    />
+
+                                    <input
+                                        v-model="form.code"
+                                        type="text"
+                                        class="h-12 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm uppercase text-slate-800 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-50"
+                                    />
+                                </div>
+
+                                <p
+                                    v-if="form.errors.code"
+                                    class="mt-2 text-xs font-semibold text-red-500"
+                                >
+                                    {{ form.errors.code }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Active -->
+                        <div
+                            class="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 p-5"
+                        >
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="flex h-11 w-11 items-center justify-center rounded-xl"
+                                    :class="
+                                        form.active
+                                            ? 'bg-emerald-100 text-emerald-600'
+                                            : 'bg-slate-200 text-slate-500'
+                                    "
+                                >
+                                    <CheckCircle2 :size="21" />
+                                </div>
+
+                                <div>
+                                    <p class="font-bold text-slate-800">
+                                        Statut de l'objet
+                                    </p>
+
+                                    <p class="mt-1 text-xs text-slate-400">
+                                        {{
+                                            form.active
+                                                ? "Cet objet est actuellement actif."
+                                                : "Cet objet est actuellement inactif."
+                                        }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3">
+                                <span
+                                    class="text-xs font-bold"
+                                    :class="
+                                        form.active
+                                            ? 'text-emerald-600'
+                                            : 'text-slate-400'
+                                    "
+                                >
+                                    {{ form.active ? "Actif" : "Inactif" }}
+                                </span>
+
+                                <button
+                                    type="button"
+                                    @click="form.active = !form.active"
+                                    class="relative h-7 w-12 rounded-full transition"
+                                    :class="
+                                        form.active
+                                            ? 'bg-emerald-500'
+                                            : 'bg-slate-300'
+                                    "
+                                >
+                                    <span
+                                        class="absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all"
+                                        :class="
+                                            form.active ? 'left-6' : 'left-1'
+                                        "
+                                    />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div
+                        class="flex items-center justify-between border-t border-slate-100 bg-slate-50/70 px-7 py-5"
+                    >
+                        <Link
+                            href="/ticket-categories"
+                            class="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-600 transition hover:bg-slate-100"
+                        >
+                            <ArrowLeft :size="17" />
+                            Annuler
+                        </Link>
+
+                        <button
+                            type="submit"
+                            :disabled="form.processing"
+                            class="inline-flex h-11 items-center gap-2 rounded-xl bg-slate-950 px-6 text-sm font-bold text-white shadow-lg shadow-slate-200 transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            <Save :size="17" />
+
+                            {{
+                                form.processing
+                                    ? "Enregistrement..."
+                                    : "Enregistrer les modifications"
+                            }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </AppLayout>
+</template>
