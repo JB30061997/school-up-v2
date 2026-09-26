@@ -17,6 +17,10 @@ use App\Http\Controllers\SupportTeamController;
 use App\Http\Controllers\TicketCategoryController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AppointmentTypeController;
+use App\Http\Controllers\ReferentialController;
+use App\Http\Controllers\RequestTypeController;
+use App\Http\Controllers\TicketStatusController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -936,6 +940,139 @@ Route::middleware([
                     ->middleware('permission:support-teams.delete')
                     ->name('destroy');
             });
+
+        /*
+|--------------------------------------------------------------------------
+| Référentiels
+|--------------------------------------------------------------------------
+*/
+
+        Route::get(
+            '/referentials',
+            [ReferentialController::class, 'index']
+        )
+            ->name('referentials.index');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Types de demandes
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('request-types')
+            ->name('request-types.')
+            ->group(function () {
+
+                Route::post(
+                    '/',
+                    [RequestTypeController::class, 'store']
+                )->name('store');
+
+                Route::put(
+                    '/{requestType}',
+                    [RequestTypeController::class, 'update']
+                )
+                    ->whereNumber('requestType')
+                    ->name('update');
+
+                Route::post(
+                    '/{requestType}/toggle-active',
+                    [RequestTypeController::class, 'toggleActive']
+                )
+                    ->whereNumber('requestType')
+                    ->name('toggle-active');
+
+                Route::delete(
+                    '/{requestType}',
+                    [RequestTypeController::class, 'destroy']
+                )
+                    ->whereNumber('requestType')
+                    ->name('destroy');
+            });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Types de rendez-vous
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('appointment-types')
+            ->name('appointment-types.')
+            ->group(function () {
+
+                Route::post(
+                    '/',
+                    [AppointmentTypeController::class, 'store']
+                )->name('store');
+
+                Route::put(
+                    '/{appointmentType}',
+                    [AppointmentTypeController::class, 'update']
+                )
+                    ->whereNumber('appointmentType')
+                    ->name('update');
+
+                Route::post(
+                    '/{appointmentType}/toggle-active',
+                    [AppointmentTypeController::class, 'toggleActive']
+                )
+                    ->whereNumber('appointmentType')
+                    ->name('toggle-active');
+
+                Route::delete(
+                    '/{appointmentType}',
+                    [AppointmentTypeController::class, 'destroy']
+                )
+                    ->whereNumber('appointmentType')
+                    ->name('destroy');
+            });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Statuts des tickets
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('ticket-statuses')
+            ->name('ticket-statuses.')
+            ->group(function () {
+
+                Route::post(
+                    '/',
+                    [TicketStatusController::class, 'store']
+                )->name('store');
+
+                Route::put(
+                    '/{ticketStatus}',
+                    [TicketStatusController::class, 'update']
+                )
+                    ->whereNumber('ticketStatus')
+                    ->name('update');
+
+                Route::post(
+                    '/{ticketStatus}/toggle-active',
+                    [TicketStatusController::class, 'toggleActive']
+                )
+                    ->whereNumber('ticketStatus')
+                    ->name('toggle-active');
+
+                Route::post(
+                    '/{ticketStatus}/set-default',
+                    [TicketStatusController::class, 'setDefault']
+                )
+                    ->whereNumber('ticketStatus')
+                    ->name('set-default');
+
+                Route::delete(
+                    '/{ticketStatus}',
+                    [TicketStatusController::class, 'destroy']
+                )
+                    ->whereNumber('ticketStatus')
+                    ->name('destroy');
+            });
     });
 });
 
@@ -945,4 +1082,4 @@ Route::middleware([
 |--------------------------------------------------------------------------
 */
 
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';

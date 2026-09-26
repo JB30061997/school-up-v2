@@ -3,6 +3,7 @@ import { Link, usePage } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
 
 import {
+    BookOpenCheck,
     Building2,
     CalendarDays,
     ChevronDown,
@@ -15,6 +16,7 @@ import {
     School,
     Settings2,
     ShieldCheck,
+    SlidersHorizontal,
     Tags,
     UserCog,
     Users,
@@ -144,7 +146,8 @@ const reclamationsOpen = ref(
 );
 
 const referentielsOpen = ref(
-    page.url.startsWith("/school-years") ||
+    page.url.startsWith("/referentials") ||
+        page.url.startsWith("/school-years") ||
         page.url.startsWith("/academic-structure") ||
         page.url.startsWith("/support-teams"),
 );
@@ -157,7 +160,7 @@ const settingsOpen = ref(
 
 /*
 |--------------------------------------------------------------------------
-| Navigation
+| Navigation - Réclamations
 |--------------------------------------------------------------------------
 */
 
@@ -176,7 +179,18 @@ const reclamationNavigation: NavigationItem[] = [
     },
 ];
 
+/*
+|--------------------------------------------------------------------------
+| Navigation - Référentiels
+|--------------------------------------------------------------------------
+*/
+
 const referentielNavigation: NavigationItem[] = [
+    {
+        title: "Configuration",
+        href: "/referentials",
+        icon: SlidersHorizontal,
+    },
     {
         title: "Années scolaires",
         href: "/school-years",
@@ -195,6 +209,12 @@ const referentielNavigation: NavigationItem[] = [
         permission: "support-teams.view",
     },
 ];
+
+/*
+|--------------------------------------------------------------------------
+| Navigation - Paramètres
+|--------------------------------------------------------------------------
+*/
 
 const settingsNavigation: NavigationItem[] = [
     {
@@ -273,6 +293,7 @@ const reclamationsActive = computed(() => {
 
 const referentielsActive = computed(() => {
     return (
+        page.url.startsWith("/referentials") ||
         page.url.startsWith("/school-years") ||
         page.url.startsWith("/academic-structure") ||
         page.url.startsWith("/support-teams")
@@ -629,7 +650,7 @@ const settingsActive = computed(() => {
                             <div
                                 class="flex size-8 shrink-0 items-center justify-center rounded-xl bg-lime-50 text-lime-700 ring-1 ring-lime-200 transition-all group-data-[active=true]:bg-lime-500 group-data-[active=true]:text-white"
                             >
-                                <GraduationCap class="size-4" />
+                                <BookOpenCheck class="size-4" />
                             </div>
 
                             <span
@@ -648,7 +669,7 @@ const settingsActive = computed(() => {
 
                         <div
                             v-if="referentielsOpen"
-                            class="ml-[18px] mt-1 border-l border-lime-100 pl-[18px] group-data-[collapsible=icon]:hidden"
+                            class="ml-[18px] mt-1 space-y-0.5 border-l border-lime-100 pl-[18px] group-data-[collapsible=icon]:hidden"
                         >
                             <SidebarMenu>
                                 <SidebarMenuItem
@@ -659,7 +680,7 @@ const settingsActive = computed(() => {
                                         as-child
                                         :is-active="isActive(item.href)"
                                         :tooltip="item.title"
-                                        class="group h-9 rounded-lg px-2 hover:bg-lime-50 data-[active=true]:bg-lime-50"
+                                        class="group h-9 rounded-lg px-2 transition-all hover:bg-lime-50 data-[active=true]:bg-lime-50"
                                     >
                                         <Link :href="item.href">
                                             <component
@@ -735,7 +756,7 @@ const settingsActive = computed(() => {
 
                         <div
                             v-if="settingsOpen"
-                            class="ml-[18px] mt-1 border-l border-emerald-100 pl-[18px] group-data-[collapsible=icon]:hidden"
+                            class="ml-[18px] mt-1 space-y-0.5 border-l border-emerald-100 pl-[18px] group-data-[collapsible=icon]:hidden"
                         >
                             <SidebarMenu>
                                 <SidebarMenuItem
@@ -746,7 +767,7 @@ const settingsActive = computed(() => {
                                         as-child
                                         :is-active="isActive(item.href)"
                                         :tooltip="item.title"
-                                        class="group h-9 rounded-lg px-2 hover:bg-emerald-50 data-[active=true]:bg-emerald-50"
+                                        class="group h-9 rounded-lg px-2 transition-all hover:bg-emerald-50 data-[active=true]:bg-emerald-50"
                                     >
                                         <Link :href="item.href">
                                             <component
@@ -774,7 +795,7 @@ const settingsActive = computed(() => {
                                             )
                                         "
                                         tooltip="Mon compte"
-                                        class="group h-9 rounded-lg px-2 hover:bg-emerald-50 data-[active=true]:bg-emerald-50"
+                                        class="group h-9 rounded-lg px-2 transition-all hover:bg-emerald-50 data-[active=true]:bg-emerald-50"
                                     >
                                         <Link href="/settings/profile">
                                             <UserCog
@@ -800,9 +821,7 @@ const settingsActive = computed(() => {
         <!-- FOOTER -->
         <!-- ========================================================= -->
 
-        <SidebarFooter class="border-t border-slate-100 bg-white p-2">
-            <!-- VERSION -->
-
+        <!-- <SidebarFooter class="border-t border-slate-100 bg-white p-2">
             <div
                 class="flex items-center gap-2 px-3 py-1 text-[10px] text-slate-400 group-data-[collapsible=icon]:hidden"
             >
@@ -811,10 +830,8 @@ const settingsActive = computed(() => {
                 <span>School Up • v2</span>
             </div>
 
-            <!-- USER -->
-
             <NavUser />
-        </SidebarFooter>
+        </SidebarFooter> -->
     </Sidebar>
 </template>
 
