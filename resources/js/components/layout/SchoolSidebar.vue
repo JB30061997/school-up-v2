@@ -821,7 +821,7 @@ const settingsActive = computed(() => {
         <!-- FOOTER -->
         <!-- ========================================================= -->
 
-        <!-- <SidebarFooter class="border-t border-slate-100 bg-white p-2">
+        <SidebarFooter class="border-t border-slate-100 bg-white p-2">
             <div
                 class="flex items-center gap-2 px-3 py-1 text-[10px] text-slate-400 group-data-[collapsible=icon]:hidden"
             >
@@ -831,7 +831,7 @@ const settingsActive = computed(() => {
             </div>
 
             <NavUser />
-        </SidebarFooter> -->
+        </SidebarFooter>
     </Sidebar>
 </template>
 

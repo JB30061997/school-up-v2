@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AcademicStructureController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\AppointmentTypeController;
 use App\Http\Controllers\CycleController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnvironmentController;
@@ -10,18 +11,19 @@ use App\Http\Controllers\EnvironmentSwitchController;
 use App\Http\Controllers\InternalRequestController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ReferentialController;
+use App\Http\Controllers\RegistrationStructureController;
+use App\Http\Controllers\RequestTypeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\SchoolYearController;
 use App\Http\Controllers\SupportTeamController;
 use App\Http\Controllers\TicketCategoryController;
 use App\Http\Controllers\TicketController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\AppointmentTypeController;
-use App\Http\Controllers\ReferentialController;
-use App\Http\Controllers\RequestTypeController;
 use App\Http\Controllers\TicketStatusController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +33,99 @@ use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'Welcome')
     ->name('home');
+
+
+/*
+|--------------------------------------------------------------------------
+| Public Registration Structure
+|--------------------------------------------------------------------------
+|
+| Routes publiques utilisées pendant l'inscription.
+|
+| Établissement
+|      ↓
+| Année scolaire
+|      ↓
+| Cycle
+|      ↓
+| Niveau
+|      ↓
+| Classe
+|
+*/
+
+Route::prefix('registration')
+    ->name('registration.')
+    ->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Années scolaires
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/environments/{environment}/school-years',
+            [RegistrationStructureController::class, 'schoolYears']
+        )
+            ->whereNumber('environment')
+            ->name('school-years');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cycles
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/environments/{environment}/school-years/{schoolYear}/cycles',
+            [RegistrationStructureController::class, 'cycles']
+        )
+            ->whereNumber([
+                'environment',
+                'schoolYear',
+            ])
+            ->name('cycles');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Niveaux
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/environments/{environment}/school-years/{schoolYear}/cycles/{cycle}/levels',
+            [RegistrationStructureController::class, 'levels']
+        )
+            ->whereNumber([
+                'environment',
+                'schoolYear',
+                'cycle',
+            ])
+            ->name('levels');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Classes
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/environments/{environment}/school-years/{schoolYear}/cycles/{cycle}/levels/{level}/classes',
+            [RegistrationStructureController::class, 'classes']
+        )
+            ->whereNumber([
+                'environment',
+                'schoolYear',
+                'cycle',
+                'level',
+            ])
+            ->name('classes');
+    });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -64,6 +159,7 @@ Route::middleware([
         [EnvironmentSelectionController::class, 'destroy']
     )->name('environments.destroy');
 
+
     /*
     |--------------------------------------------------------------------------
     | Environment Switch
@@ -74,6 +170,7 @@ Route::middleware([
         '/switch-environment',
         EnvironmentSwitchController::class
     )->name('environments.switch');
+
 
     /*
     |--------------------------------------------------------------------------
@@ -120,6 +217,7 @@ Route::middleware([
             )->name('destroy');
         });
 
+
     /*
     |--------------------------------------------------------------------------
     | Routes nécessitant un environnement courant
@@ -142,6 +240,7 @@ Route::middleware([
         )
             ->middleware('permission:dashboard.view')
             ->name('dashboard');
+
 
         /*
         |--------------------------------------------------------------------------
@@ -207,6 +306,7 @@ Route::middleware([
                     ->name('reply');
             });
 
+
         /*
         |--------------------------------------------------------------------------
         | Demandes internes
@@ -270,6 +370,7 @@ Route::middleware([
                     ->middleware('permission:requests.update')
                     ->name('comment');
             });
+
 
         /*
         |--------------------------------------------------------------------------
@@ -350,6 +451,7 @@ Route::middleware([
                     ->middleware('permission:appointments.update')
                     ->name('complete');
             });
+
 
         /*
         |--------------------------------------------------------------------------
@@ -437,6 +539,7 @@ Route::middleware([
                     ->name('environments.default');
             });
 
+
         /*
         |--------------------------------------------------------------------------
         | Rôles
@@ -500,6 +603,7 @@ Route::middleware([
                     ->middleware('permission:roles.delete')
                     ->name('destroy');
             });
+
 
         /*
         |--------------------------------------------------------------------------
@@ -581,6 +685,7 @@ Route::middleware([
                     ->name('favicon.destroy');
             });
 
+
         /*
         |--------------------------------------------------------------------------
         | Années scolaires
@@ -653,12 +758,11 @@ Route::middleware([
                     ->name('destroy');
             });
 
+
         /*
         |--------------------------------------------------------------------------
         | Structure pédagogique
         |--------------------------------------------------------------------------
-        |
-        | Arborescence :
         |
         | Environnement
         |     └── Année scolaire
@@ -674,6 +778,7 @@ Route::middleware([
         )
             ->middleware('permission:school-years.view')
             ->name('academic-structure.index');
+
 
         /*
         |--------------------------------------------------------------------------
@@ -717,6 +822,7 @@ Route::middleware([
                     ->name('destroy');
             });
 
+
         /*
         |--------------------------------------------------------------------------
         | Niveaux
@@ -759,6 +865,7 @@ Route::middleware([
                     ->name('destroy');
             });
 
+
         /*
         |--------------------------------------------------------------------------
         | Classes
@@ -800,6 +907,7 @@ Route::middleware([
                     ->middleware('permission:school-years.delete')
                     ->name('destroy');
             });
+
 
         /*
         |--------------------------------------------------------------------------
@@ -877,6 +985,7 @@ Route::middleware([
                     ->name('destroy');
             });
 
+
         /*
         |--------------------------------------------------------------------------
         | Équipes de support
@@ -941,17 +1050,17 @@ Route::middleware([
                     ->name('destroy');
             });
 
+
         /*
-|--------------------------------------------------------------------------
-| Référentiels
-|--------------------------------------------------------------------------
-*/
+        |--------------------------------------------------------------------------
+        | Référentiels
+        |--------------------------------------------------------------------------
+        */
 
         Route::get(
             '/referentials',
             [ReferentialController::class, 'index']
-        )
-            ->name('referentials.index');
+        )->name('referentials.index');
 
 
         /*
@@ -1075,6 +1184,7 @@ Route::middleware([
             });
     });
 });
+
 
 /*
 |--------------------------------------------------------------------------

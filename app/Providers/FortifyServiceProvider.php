@@ -48,32 +48,70 @@ class FortifyServiceProvider extends ServiceProvider
      */
     private function configureViews(): void
     {
-        Fortify::loginView(fn (Request $request) => Inertia::render('auth/Login', [
+        Fortify::loginView(fn(Request $request) => Inertia::render('auth/Login', [
             'canResetPassword' => Features::enabled(Features::resetPasswords()),
             'status' => $request->session()->get('status'),
         ]));
 
-        Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/ResetPassword', [
+        Fortify::resetPasswordView(fn(Request $request) => Inertia::render('auth/ResetPassword', [
             'email' => $request->email,
             'token' => $request->route('token'),
             'passwordRules' => Password::defaults()->toPasswordRulesString(),
         ]));
 
-        Fortify::requestPasswordResetLinkView(fn (Request $request) => Inertia::render('auth/ForgotPassword', [
+        Fortify::requestPasswordResetLinkView(fn(Request $request) => Inertia::render('auth/ForgotPassword', [
             'status' => $request->session()->get('status'),
         ]));
 
-        Fortify::verifyEmailView(fn (Request $request) => Inertia::render('auth/VerifyEmail', [
+        Fortify::verifyEmailView(fn(Request $request) => Inertia::render('auth/VerifyEmail', [
             'status' => $request->session()->get('status'),
         ]));
 
-        Fortify::registerView(fn () => Inertia::render('auth/Register', [
-            'passwordRules' => Password::defaults()->toPasswordRulesString(),
-        ]));
+        Fortify::registerView(function () {
+            return Inertia::render('auth/Register', [
+                'passwordRules' => Password::defaults()
+                    ->toPasswordRulesString(),
 
-        Fortify::twoFactorChallengeView(fn () => Inertia::render('auth/TwoFactorChallenge'));
+                'environments' => \App\Models\Environment::query()
+                    ->where('active', true)
+                    ->orderBy('name')
+                    ->get([
+                        'id',
+                        'name',
+                        'code',
+                        'app_name',
+                        'logo',
+                        'primary_color',
+                    ]),
 
-        Fortify::confirmPasswordView(fn () => Inertia::render('auth/ConfirmPassword'));
+                'registrationRoles' => [
+                    [
+                        'code' => 'student',
+                        'name' => 'Élève',
+                        'requires_approval' => false,
+                    ],
+                    [
+                        'code' => 'parent',
+                        'name' => 'Parent',
+                        'requires_approval' => false,
+                    ],
+                    [
+                        'code' => 'teacher',
+                        'name' => 'Professeur',
+                        'requires_approval' => true,
+                    ],
+                    [
+                        'code' => 'admin',
+                        'name' => 'Administrateur',
+                        'requires_approval' => true,
+                    ],
+                ],
+            ]);
+        });
+
+        Fortify::twoFactorChallengeView(fn() => Inertia::render('auth/TwoFactorChallenge'));
+
+        Fortify::confirmPasswordView(fn() => Inertia::render('auth/ConfirmPassword'));
     }
 
     /**
@@ -86,14 +124,14 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
+            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())) . '|' . $request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
         });
 
         RateLimiter::for('passkeys', function (Request $request) {
             return Limit::perMinute(10)->by(
-                ($request->input('credential.id') ?: $request->session()->getId()).'|'.$request->ip(),
+                ($request->input('credential.id') ?: $request->session()->getId()) . '|' . $request->ip(),
             );
         });
     }
